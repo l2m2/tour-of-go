@@ -33,7 +33,6 @@ func Same(t1, t2 *tree.Tree) bool {
 	for i := range ch1 {
 		s1 = append(s1, i)
 	}
-	fmt.Println()
 	for i := range ch2 {
 		s2 = append(s2, i)
 	}
