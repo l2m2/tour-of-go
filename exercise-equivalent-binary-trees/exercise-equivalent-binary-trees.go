@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"reflect"
-	"sort"
 
 	"golang.org/x/tour/tree"
 )
@@ -13,8 +11,8 @@ func Walk(t *tree.Tree, ch chan int) {
 	if t == nil {
 		return
 	}
-	ch <- t.Value
 	Walk(t.Left, ch)
+	ch <- t.Value
 	Walk(t.Right, ch)
 }
 
@@ -22,25 +20,29 @@ func Walk(t *tree.Tree, ch chan int) {
 func Same(t1, t2 *tree.Tree) bool {
 	ch1, ch2 := make(chan int), make(chan int)
 	go func() {
-		defer close(ch1)
 		Walk(t1, ch1)
+		close(ch1)
 	}()
 	go func() {
-		defer close(ch2)
 		Walk(t2, ch2)
+		close(ch2)
 	}()
-	var s1, s2 []int
-	for i := range ch1 {
-		s1 = append(s1, i)
+	for v1 := range ch1 {
+		if v1 != <-ch2 {
+			return false
+		}
 	}
-	for i := range ch2 {
-		s2 = append(s2, i)
-	}
-	sort.Ints(s1)
-	sort.Ints(s2)
-	fmt.Println(s1)
-	fmt.Println(s2)
-	return reflect.DeepEqual(s1, s2)
+	return true
+	// var s1, s2 []int
+	// for i := range ch1 {
+	// 	s1 = append(s1, i)
+	// }
+	// for i := range ch2 {
+	// 	s2 = append(s2, i)
+	// }
+	// sort.Ints(s1)
+	// sort.Ints(s2)
+	// return reflect.DeepEqual(s1, s2)
 }
 
 func main() {
